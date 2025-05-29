@@ -1,0 +1,58 @@
+{
+  "bundles": [
+    {
+      "name": "default",
+      "assets": [
+        {
+          "alias": [
+            "general-ui"
+          ],
+          "src": [
+            "general-ui-OLE17Q.webp.json",
+            "general-ui-ObWN_g@0.5x.webp.json",
+            "general-ui-gGsEkg.png.json",
+            "general-ui-29me@0.5x.png.json"
+          ],
+          "data": {
+            "tags": {
+              "tps": true
+            }
+          }
+        },
+        {
+          "alias": [
+            "logo.svg"
+          ],
+          "src": [
+            "logo-LmftHw.svg"
+          ],
+          "data": {
+            "tags": {}
+          }
+        }
+      ]
+    },
+    {
+      "name": "game-scene",
+      "assets": [
+        {
+          "alias": [
+            "game-scene"
+          ],
+          "src": [
+            "game-scene-zVIApQ@0.5x.webp.json",
+            "game-scene-RGtAhA.webp.json",
+            "game-scene-J1J05Q.png.json",
+            "game-scene-6OjN2A@0.5x.png.json"
+          ],
+          "data": {
+            "tags": {
+              "m": true,
+              "tps": true
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
