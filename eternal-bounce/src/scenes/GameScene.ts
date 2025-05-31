@@ -13,7 +13,8 @@ export class GameScene extends Container implements Scene {
   constructor() {
     super();
     this._game = new Game();
-    app.stage.addChild(this._game.stage);
+    this.addChild(this._game.gameField);
+    app.stage.addChild(this);
   }
 
   resize(w: number, h: number) {

@@ -9,7 +9,7 @@ import { PhysicsBody } from "./PhysicsBody";
 
 export class PhysicSystem implements IPhysicSystem, ISystem {
   static SYSTEM_ID = "physics";
-  debugGraphics = new Graphics();
+  debugGraphics = new Graphics({ label: "physics debug" });
   private bodies = new Set<PhysicsBody>();
   private colliders = new Set<Collider>();
 
@@ -30,16 +30,21 @@ export class PhysicSystem implements IPhysicSystem, ISystem {
     }
 
     this.updateColliders();
-    this.debugGraphics.clear();
 
     for (const body of this.bodies) {
       body.postUpdate();
-      if (this._debugDraw) {
-        this.debugGraphics.strokeStyle = { color: 0xff0000, alpha: 1 };
-        this.debugGraphics
-          .rect(body.position.x, body.position.y, body.width, body.height)
-          .stroke();
-      }
+    }
+    if (this._debugDraw) {
+      this.debugGraphics.clear();
+      this.debugDrawBodies();
+    }
+  }
+
+  private debugDrawBodies() {
+    for (const body of this.bodies) {
+      this.debugGraphics
+        .rect(body.position.x, body.position.y, body.width, body.height)
+        .stroke({ color: 0xff0000 });
     }
   }
 
