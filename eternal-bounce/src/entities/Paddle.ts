@@ -1,34 +1,47 @@
 import { Container, Sprite, Ticker } from "pixi.js";
 import { app } from "../main";
 import { Keyboard } from "../systems/Keyboard";
-import { sceneManager } from "../systems/SceneManager";
 import { Ball } from "./Ball";
+import { PhysicsBody, PhysicsState } from "../systems/physics/PhysicsBody";
+import { Game } from "../game/Game";
+import { PhysicSystem } from "../systems/physics/PhysicSystem";
 
 export class Paddle {
+  private game: Game;
   speed: number;
   viewContainer: Container;
-
+  body: PhysicsBody;
   snappedBalls: Ball[] = [];
 
-  constructor(x = 0, y = 0) {
-    this.viewContainer = new Container({ x, y });
+  constructor(game: Game, x = 0, y = 0) {
+    this.viewContainer = new Container({ x, y, label: "paddle" });
+    this.game = game;
 
     const sprite = Sprite.from("paddle.png");
-    sprite.anchor.set(0.5);
+    this.viewContainer.addChild(sprite);
 
     this.speed = 6;
 
-    this.viewContainer.addChild(sprite);
+    const phys = game.systems.get("physics") as PhysicSystem;
+
+    this.body = new PhysicsBody(phys, this.viewContainer);
+
+    this.body.setState(PhysicsState.KINEMATIC);
+    phys.addBody(this.body);
 
     app.ticker.add(this.update, this);
+
+    Keyboard.events.on("keyup", (key) => {
+      if (key != "Space") return;
+      this.launchBall();
+    });
   }
 
   update(time: Ticker) {
     const dt = time.deltaTime;
-    const halfSceneWidth = sceneManager.width / 2;
-    const halfViewWidth = this.viewContainer.width / 2;
 
     let newX = this.viewContainer.x;
+
     if (Keyboard.state?.get("ArrowLeft")) {
       newX -= this.speed * dt;
     }
@@ -36,18 +49,17 @@ export class Paddle {
       newX += this.speed * dt;
     }
 
-    newX = Math.max(
-      -halfSceneWidth + halfViewWidth,
-      Math.min(halfSceneWidth - halfViewWidth, newX)
-    );
-
-    this.viewContainer.x = newX;
+    this.body.setPosition(newX, this.viewContainer.y);
   }
 
   snapBall(ball: Ball) {
     ball.view.removeFromParent();
-    ball.view.position.set(this.viewContainer.x, -35);
+
     this.viewContainer.addChild(ball.view);
+
+    ball.setPosition(this.viewContainer.width / 2, -50);
+    ball.setVelocity(0, 0);
+
     this.snappedBalls.push(ball);
   }
 
@@ -59,10 +71,12 @@ export class Paddle {
 
     ball.view.removeFromParent();
     ball.parent.addChild(ball.view);
+    const newPos = ball.parent.toLocal(globalPos);
+    ball.setPosition(newPos.x, newPos.y);
 
-    const newLocalPos = ball.view.parent.toLocal(globalPos);
-    ball.view.position.set(newLocalPos.x, newLocalPos.y);
-
-
+    const angle = (Math.random() * 60 - 30) * (Math.PI / 180);
+    const speed = 10;
+    ball.body?.setState(PhysicsState.KINEMATIC);
+    ball.setVelocity(speed * Math.sin(angle), -speed * Math.cos(angle));
   }
 }
