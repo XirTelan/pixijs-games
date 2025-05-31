@@ -26,6 +26,22 @@ export class Vector2 {
     return this;
   }
 
+  public clone() {
+    return new Vector2(this.x, this.y);
+  }
+
+  public scale(value: number) {
+    if (isFinite(value)) {
+      this.x *= value;
+      this.y *= value;
+    } else {
+      this.x = 0;
+      this.y = 0;
+    }
+
+    return this;
+  }
+
   public add(n: number): this;
   public add(v: Vector2): this;
   public add(arg: number | Vector2): this {
@@ -39,4 +55,8 @@ export class Vector2 {
 
     return this;
   }
+}
+
+export function clamp(val: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, val));
 }
