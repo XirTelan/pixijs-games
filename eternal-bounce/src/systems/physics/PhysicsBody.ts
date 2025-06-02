@@ -9,6 +9,7 @@ export enum PhysicsState {
 }
 
 export class PhysicsBody implements IPhysicsBody {
+  owner?: unknown;
   private state: PhysicsState = PhysicsState.STATIC;
   private gameObject: DisplayObject;
 
@@ -16,6 +17,10 @@ export class PhysicsBody implements IPhysicsBody {
 
   force = new Vector2();
   velocity = new Vector2();
+
+  speed: number = 0;
+  maxSpeed?: number;
+
   world: PhysicSystem;
 
   width: number;
@@ -27,7 +32,10 @@ export class PhysicsBody implements IPhysicsBody {
 
   allowGravity: boolean = true;
 
-  constructor(world: PhysicSystem, gameObject: DisplayObject) {
+  onHit?(other: PhysicsBody): void;
+
+  constructor(world: PhysicSystem, gameObject: DisplayObject, owner?: unknown) {
+    this.owner = owner;
     this.world = world;
     this.gameObject = gameObject;
 
@@ -52,6 +60,10 @@ export class PhysicsBody implements IPhysicsBody {
 
   setVelocity(x: number, y: number): void {
     this.velocity.set(x, y);
+    this.speed = this.velocity.length();
+    if (this.maxSpeed && this.speed > this.maxSpeed) {
+      this.velocity.scale(this.maxSpeed / this.speed);
+    }
   }
 
   public get x(): number {
