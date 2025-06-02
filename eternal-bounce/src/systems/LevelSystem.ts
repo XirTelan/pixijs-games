@@ -43,7 +43,7 @@ export class LevelSystem implements ISystem {
 
     this.setupHotkeys();
 
-    this.generateGridLevel(10, 10, 0, 0, 100, 20, 10);
+    this.generateGridLevel(10, 10, 100, 100);
   }
   private setupHotkeys() {
     if (import.meta.env.DEV)
@@ -64,7 +64,7 @@ export class LevelSystem implements ISystem {
 
     this.platform.body.setPosition(
       this.gameWidth / 2 - this.platform.viewContainer.width / 2,
-      this.gameHeight - 300
+      this.gameHeight - 100
     );
   }
 
@@ -76,13 +76,15 @@ export class LevelSystem implements ISystem {
       this.platform.body,
       (ball, platform) => {
         onBallCollide(ball, platform);
-        ball.velocity.add(ball.velocity.clone().scale(0.1));
+        const vx = platform.position.x - platform.prevPosition.x;
+        ball.velocity.x += vx * 0.5;
+        ball.velocity.scale(1.05);
+        ball.setVelocity(ball.velocity.x, ball.velocity.y);
       }
     );
     phys.addCollider(this.ballsOnField, this.bricks, (ball, brick) => {
-      brick.disable();
-
       onBallCollide(ball, brick);
+      brick.onHit?.(ball);
     });
   }
 
@@ -95,16 +97,14 @@ export class LevelSystem implements ISystem {
     brickHeight = 32,
     padding = 8
   ) {
-    // this.clear();
-
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const x = startX + col * (brickWidth + padding);
         const y = startY + row * (brickHeight + padding);
 
         const brick = new Brick(this.game, x, y, {
-          height: 20,
-          width: 100,
+          width: brickWidth,
+          height: brickHeight,
           hitPoints: 3,
           type: "default",
         });

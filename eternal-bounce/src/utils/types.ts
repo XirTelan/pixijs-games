@@ -1,5 +1,6 @@
 import { Container, Ticker } from "pixi.js";
 import { Vector2 } from "./math";
+import { Game } from "../game/Game";
 
 export interface Scene extends Container {
   update?: (time: Ticker) => void;
@@ -17,7 +18,9 @@ export interface ISystemConstructor {
   readonly SYSTEM_ID: string;
   new (): ISystem;
 }
-export interface ISystem {
+export interface ISystem<S extends Game = Game> {
+  game?: S;
+  init?(): void;
   update(deltaTime: number): void;
 }
 export interface IPhysicsBody {
@@ -28,6 +31,7 @@ export interface IPhysicsBody {
   height: number;
   position: Vector2;
   allowGravity: boolean;
+  disabled: boolean;
 
   x: number;
   y: number;
@@ -60,3 +64,10 @@ export interface IPhysicSystem {
 }
 
 export type DisplayObject<T = Container> = T extends Container ? T : Container;
+
+export type BrickOptions = {
+  width: number;
+  height: number;
+  hitPoints: number;
+  type: string;
+};
