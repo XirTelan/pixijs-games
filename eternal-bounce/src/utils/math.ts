@@ -55,6 +55,11 @@ export class Vector2 {
 
     return this;
   }
+
+  public length(isSquared = false) {
+    const length = this.x ** 2 + this.y ** 2;
+    return isSquared ? length : Math.sqrt(length);
+  }
 }
 
 export function clamp(val: number, min: number, max: number) {
