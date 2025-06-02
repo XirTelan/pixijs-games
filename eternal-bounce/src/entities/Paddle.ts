@@ -6,11 +6,15 @@ import { PhysicsBody, PhysicsState } from "../systems/physics/PhysicsBody";
 import { Game } from "../game/Game";
 import { PhysicSystem } from "../systems/physics/PhysicSystem";
 
+const SPEED = 10;
+
 export class Paddle {
   private game: Game;
   speed: number;
   viewContainer: Container;
   body: PhysicsBody;
+  acceleration = 100;
+  friction = 1;
   snappedBalls: Ball[] = [];
 
   constructor(game: Game, x = 0, y = 0) {
@@ -20,7 +24,7 @@ export class Paddle {
     const sprite = Sprite.from("paddle.png");
     this.viewContainer.addChild(sprite);
 
-    this.speed = 6;
+    this.speed = SPEED;
 
     const phys = game.systems.get("physics") as PhysicSystem;
 
@@ -39,17 +43,27 @@ export class Paddle {
 
   update(time: Ticker) {
     const dt = time.deltaTime;
+    const velocity = this.body.velocity;
 
-    let newX = this.viewContainer.x;
+    const isLeftPressed = Keyboard.state?.get("ArrowLeft");
+    const isRightPressed = Keyboard.state?.get("ArrowRight");
 
-    if (Keyboard.state?.get("ArrowLeft")) {
-      newX -= this.speed * dt;
+    if (isLeftPressed) {
+      velocity.x -= this.acceleration * dt;
+    } else if (isRightPressed) {
+      velocity.x += this.acceleration * dt;
+    } else {
+      const vx = this.body.velocity.x;
+      const frictionDelta = this.friction * dt;
+
+      if (vx > 0) {
+        velocity.x = Math.max(0, velocity.x - frictionDelta);
+      } else if (vx < 0) {
+        velocity.x = Math.min(0, velocity.x + frictionDelta);
+      }
     }
-    if (Keyboard.state?.get("ArrowRight")) {
-      newX += this.speed * dt;
-    }
 
-    this.body.setPosition(newX, this.viewContainer.y);
+    velocity.x = Math.max(-this.speed, Math.min(this.speed, velocity.x));
   }
 
   snapBall(ball: Ball) {
