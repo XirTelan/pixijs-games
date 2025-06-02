@@ -12,6 +12,8 @@ export class PhysicsBody implements IPhysicsBody {
   private state: PhysicsState = PhysicsState.STATIC;
   private gameObject: DisplayObject;
 
+  disabled = false;
+
   force = new Vector2();
   velocity = new Vector2();
   world: PhysicSystem;
@@ -41,6 +43,13 @@ export class PhysicsBody implements IPhysicsBody {
       this.force.set(forceX, forceY);
     }
   }
+
+  disable() {
+    this.disabled = true;
+    this.velocity.set(0);
+    this.world.removeBody(this);
+  }
+
   setVelocity(x: number, y: number): void {
     this.velocity.set(x, y);
   }
@@ -50,6 +59,13 @@ export class PhysicsBody implements IPhysicsBody {
   }
   public get y(): number {
     return this.position.y;
+  }
+  public set x(x: number) {
+    this.position.setX(x);
+  }
+
+  public set y(y: number) {
+    this.position.setY(y);
   }
 
   update(deltaTime: number) {
@@ -78,6 +94,7 @@ export class PhysicsBody implements IPhysicsBody {
         break;
 
       case PhysicsState.KINEMATIC:
+        this.prevPosition.set(this.position.x, this.position.y);
         this.position.x += this.velocity.x * deltaTime;
         this.position.y += this.velocity.y * deltaTime;
 

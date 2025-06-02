@@ -9,7 +9,9 @@ import { PhysicsBody } from "./PhysicsBody";
 
 export class PhysicSystem implements IPhysicSystem, ISystem {
   static SYSTEM_ID = "physics";
+
   debugGraphics = new Graphics({ label: "physics debug" });
+
   private bodies = new Set<PhysicsBody>();
   private colliders = new Set<Collider>();
 
@@ -52,6 +54,10 @@ export class PhysicSystem implements IPhysicSystem, ISystem {
     this.bodies.add(body);
   }
 
+  removeBody(body: PhysicsBody) {
+    this.bodies.delete(body);
+  }
+
   addCollider<
     T1 extends IPhysicsBody = IPhysicsBody,
     T2 extends IPhysicsBody = IPhysicsBody,
@@ -76,8 +82,7 @@ export class PhysicSystem implements IPhysicSystem, ISystem {
 
         for (let j = startJ; j < group2.length; j++) {
           const b = group2[j];
-
-          if (a === b) continue;
+          if (a === b || a.disabled || b.disabled) continue;
           if (this.checkAABB(a, b)) {
             onCollide(a, b);
           }
@@ -93,29 +98,6 @@ export class PhysicSystem implements IPhysicSystem, ISystem {
       a.y < b.y + b.height &&
       a.y + a.height > b.y
     );
-  }
-
-  public getCollisionSide(
-    a: PhysicsBody,
-    b: PhysicsBody
-  ): "left" | "right" | "top" | "bottom" | "inside" {
-    const dx = a.x + a.width / 2 - (b.x + b.width / 2);
-    const dy = a.y + a.height / 2 - (b.y + b.height / 2);
-    const width = (a.width + b.width) / 2;
-    const height = (a.height + b.height) / 2;
-
-    const crossWidth = width * dy;
-    const crossHeight = height * dx;
-
-    if (Math.abs(dx) <= width && Math.abs(dy) <= height) {
-      if (crossWidth > crossHeight) {
-        return crossWidth > -crossHeight ? "bottom" : "left";
-      } else {
-        return crossWidth > -crossHeight ? "right" : "top";
-      }
-    }
-
-    return "inside";
   }
 
   set debugDraw(state: boolean) {
